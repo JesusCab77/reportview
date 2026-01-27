@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Valentine Edition 💘</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body{
+  background:#fdecef;
+  font-family:'Georgia', serif;
+  padding:40px;
+  overflow-y:auto;
+}
+.page{
+  max-width:1000px;
+  margin:auto;
+  background:#ffe6eb;
+  padding:50px;
+  border:3px solid #d63384;
+  position:relative;
+  z-index:2;
+}
+.header{
+  text-align:center;
+  border-bottom:2px solid #d63384;
+  margin-bottom:40px;
+}
+
+.header h1{
+  font-size:48px;
+  color:#c2185b;
+}
+
+.text-love{
+  font-size:18px;
+  line-height:1.8;
+}
+
+.photo-box img{
+  width:100%;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,.3);
+}
+
+.question{
+  text-align:center;
+  margin-top:50px;
+}
+
+#mensaje{
+  margin-top:25px;
+  font-size:22px;
+  color:#c2185b;
+  min-height:60px;
+}
+
+.btn-si{
+  font-size:22px;
+  transition:.3s;
+}
+
+.btn-no{
+  font-size:18px;
+}
+
+/* Corazones */
+.hearts-container{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  z-index:0;
+  pointer-events:none;
+}
+
+.heart{
+  position:absolute;
+  top:-10px;
+  color:red;
+  animation:fall linear infinite;
+}
+
+@keyframes fall{
+  to{ transform:translateY(120%); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+<div class="hearts-container" id="hearts"></div>
+
+  <div class="header">
+    <small>EDICIÓN ESPECIAL — 14 DE FEBRERO</small>
+    <h1>Will you be my Valentine?</h1>
+    <small>Distribución exclusiva para la persona más especial</small>
+  </div>
+
+  <!-- DOS COLUMNAS -->
+  <div class="row align-items-center mb-5">
+    
+    <!-- TEXTO -->
+    <div class="col-md-6 text-love">
+      <p style="font-size: 30px;"><strong>Mi amada Shey,</strong></p>
+
+      <p>
+        Desde que estoy contigo he sido el hombre más feliz del mundo.
+        En tus ojos encontré la paz, en tu sonrisa el hogar,
+        y en tu forma de amar todo aquello que siempre estuve buscando.
+      </p>
+
+      <p>
+        Eres la casualidad más bonita de mi vida,
+        mi pensamiento favorito al despertar
+        y la razón por la que creo, sin dudas,
+        que el amor verdadero sí existe.
+      </p>
+
+      <p>
+        Te amo con todo mi corazón
+        y quiero hacerte la mujer más feliz del mundo,
+        cuidarte, elegirte y caminar a tu lado
+        hoy y todos los días que vengan.
+      </p>
+    </div>
+
+    <!-- IMAGEN -->
+    <div class="col-md-6 photo-box text-center">
+      <!-- CAMBIA LA IMAGEN POR LA DE USTEDES -->
+      <img src="picture.png">
+    </div>
+
+  </div>
+
+  <!-- PREGUNTA FINAL -->
+  <div class="question">
+    <h2>La gran pregunta</h2>
+    <p>¿Quieres ser mi</p>
+    <h2><strong>San Valentín?</strong></h2>
+
+    <p class="mt-4">
+      Así que ahora sí…<br>
+      con el corazón en la mano<br>
+      y una sonrisa nerviosa:
+    </p>
+
+    <p><strong>Elige tu respuesta:</strong></p>
+
+    <div id="botones">
+      <button id="btnSi" class="btn btn-success btn-si me-3">Sí 💕</button>
+      <button id="btnNo" class="btn btn-danger btn-no">No 💔</button>
+    </div>
+
+    <div id="mensaje"></div>
+  </div>
+
+</div>
+
+<script>
+const btnSi = document.getElementById("btnSi");
+const btnNo = document.getElementById("btnNo");
+const mensaje = document.getElementById("mensaje");
+const botones = document.getElementById("botones");
+const heartsContainer = document.getElementById("hearts");
+
+let noCount = 0;
+const mensajesNo = [
+  "¿Segura que no? 🥺",
+  "Piénsalo otra vez, corazón 💭",
+  "Soy un muy buen partido 😏",
+  "Mira todo este amor… imposible decir que no 💖",
+  "Última oportunidad antes de que me rompas el corazón 💔"
+];
+
+btnNo.addEventListener("click", ()=>{
+  mensaje.textContent = mensajesNo[noCount % mensajesNo.length];
+  noCount++;
+  btnSi.style.transform = `scale(${1 + noCount * 0.25})`;
+});
+
+btnSi.addEventListener("click", ()=>{
+  mensaje.innerHTML = "Gracias por decir que sí 💕<br>Prometo amarte y cuidarte siempre 🥰";
+  botones.style.display = "none";
+});
+
+/* Lluvia de corazones */
+function crearCorazon(){
+  const h = document.createElement("div");
+  h.classList.add("heart");
+  h.innerHTML = "❤️";
+  h.style.left = Math.random()*100 + "%";
+  h.style.fontSize = Math.random()*20 + 15 + "px";
+  h.style.animationDuration = Math.random()*3 + 4 + "s";
+
+  heartsContainer.appendChild(h);
+
+  setTimeout(()=>h.remove(),7000);
+}
+setInterval(crearCorazon, 350);
+</script>
+
+</body>
+</html>
