@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>11 meses</title>
+
+<style>
+body { margin:0; overflow:hidden; background:black; }
+canvas { display:block; }
+
+#modal{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.95);
+  display:none; justify-content:center; align-items:center;
+  flex-direction:column; color:white;
+}
+
+#modal img{
+  max-width:30%;
+  border-radius:15px;
+  box-shadow:0 0 40px white;
+}
+
+#modal p{
+  margin-top:20px;
+  font-size:22px;
+}
+</style>
+</head>
+
+<body>
+<canvas id="c"></canvas>
+
+<div id="modal">
+  <img id="img">
+  <p id="text"></p>
+</div>
+
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+// cámara
+let camX = 0, camY = 0, zoom = 1;
+let dragging=false, lastX, lastY;
+
+// contenido
+const palabras = [
+"Te amo","Mi vida","Hermosa","Mi cielo","Mi amor",
+"Mi todo","Mi universo","Mi felicidad",
+"Siempre tú","Mi princesa","Mi mundo", "Mi shey",
+"No lo olvides","Cariño"
+];
+
+const frases = [
+"Soy el más afortunado de tenerte en mi vida",
+"Gracias por estos 11 meses",
+"Te amo infinito",
+"Contigo si a todooo",
+"Contigo todo es mejor",
+"Eres lo mejor que me pasó"
+];
+
+const images = [
+"foto2.jpeg",
+"foto3.jpeg",
+"foto4.jpeg",
+"foto5.jpeg",
+"foto6.jpeg",
+"foto7.jpeg",
+"foto8.jpeg",
+"picture.png"
+];
+
+// ⭐ FONDO PROFUNDO (muchas estrellas)
+let bgStars = [];
+for(let i=0;i<4000;i++){
+  bgStars.push({
+    x:(Math.random()-0.5)*10000,
+    y:(Math.random()-0.5)*10000,
+    r:Math.random()*1.5,
+    alpha: Math.random()
+  });
+}
+
+// 🌌 BRAZOS GALÁCTICOS GRUESOS
+const galaxy = [];
+const arms = 6;
+
+for(let i=0;i<4000;i++){
+
+  let radius = Math.pow(Math.random(),0.5)*1400;
+  let arm = i % arms;
+
+  let angle = (arm*(Math.PI*2/arms)) + radius*0.004;
+
+  let thickness = (1 - radius/1400) * 100;
+
+  galaxy.push({
+    radius,
+    angle,
+    offsetX:(Math.random()-0.5)*thickness,
+    offsetY:(Math.random()-0.5)*thickness,
+    speed:0.0003 + Math.random()*0.0003,
+    size:Math.random()*2
+  });
+}
+
+// 💬 ITEMS SOLO FUERA DEL CENTRO
+const items = [];
+
+for(let i=0;i<600;i++){
+
+  let r = 300 + Math.random()*2500;
+
+  items.push({
+    radius:r,
+    angle:Math.random()*Math.PI*2,
+    speed:0.0001 + Math.random()*0.0002,
+    text: palabras[Math.floor(Math.random()*palabras.length)],
+    img: Math.random()<0.25 ? images[Math.floor(Math.random()*images.length)] : null,
+    frase: frases[Math.floor(Math.random()*frases.length)]
+  });
+}
+
+function draw(){
+
+  ctx.fillStyle="rgba(0,0,0,0.25)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  ctx.save();
+
+  ctx.translate(canvas.width/2, canvas.height/2);
+  ctx.scale(zoom, zoom);
+  ctx.translate(-camX, -camY);
+
+  // ⭐ fondo estrellas
+  bgStars.forEach(s=>{
+    ctx.globalAlpha = s.alpha;
+    ctx.fillStyle="white";
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  // 🌌 galaxia
+  galaxy.forEach(g=>{
+    g.angle += g.speed;
+
+    let x = Math.cos(g.angle)*g.radius + g.offsetX;
+    let y = Math.sin(g.angle)*g.radius + g.offsetY;
+
+    ctx.fillStyle="white";
+    ctx.beginPath();
+    ctx.arc(x,y,g.size,0,Math.PI*2);
+    ctx.fill();
+  });
+
+  // 💖 NÚCLEO (solo esfera)
+  let grd = ctx.createRadialGradient(0,0,0,0,0,260);
+  grd.addColorStop(0,"white");
+  grd.addColorStop(0.3,"#fff89a");
+  grd.addColorStop(1,"transparent");
+
+  ctx.fillStyle=grd;
+  ctx.beginPath();
+  ctx.arc(0,0,200,0,Math.PI*2);
+  ctx.fill();
+
+  // 💖 TEXTO CENTRAL (solo aquí)
+  ctx.fillStyle="black";
+  ctx.textAlign="center";
+  ctx.font = (50/zoom)+"px Arial";
+  ctx.fillText("Feliz 11 meses",0,10);
+
+  // 💬 EXTERIOR
+  items.forEach(item=>{
+    item.angle += item.speed;
+
+    let x = Math.cos(item.angle)*item.radius;
+    let y = Math.sin(item.angle)*item.radius;
+
+    ctx.shadowColor="white";
+    ctx.shadowBlur=8;
+
+    if(item.img){
+
+      if(!item.imageObj){
+        item.imageObj = new Image();
+        item.imageObj.src = item.img;
+      }
+
+      ctx.drawImage(item.imageObj,x,y,45,45);
+
+    }else{
+      ctx.fillStyle="white";
+      ctx.font = (14/zoom)+"px Arial";
+      ctx.fillText(item.text,x,y);
+    }
+
+    ctx.shadowBlur=0;
+
+    item.x = x;
+    item.y = y;
+  });
+
+  ctx.restore();
+
+  requestAnimationFrame(draw);
+}
+
+// 🖱️ mover
+canvas.addEventListener("mousedown", e=>{
+  dragging=true;
+  lastX=e.clientX;
+  lastY=e.clientY;
+});
+
+canvas.addEventListener("mousemove", e=>{
+  if(dragging){
+    camX -= (e.clientX-lastX)/zoom;
+    camY -= (e.clientY-lastY)/zoom;
+    lastX=e.clientX;
+    lastY=e.clientY;
+  }
+});
+
+canvas.addEventListener("mouseup", ()=> dragging=false);
+
+// 🔍 zoom
+canvas.addEventListener("wheel", e=>{
+  let scale = e.deltaY<0 ? 1.1 : 0.9;
+
+  const mx = (e.clientX - canvas.width/2)/zoom + camX;
+  const my = (e.clientY - canvas.height/2)/zoom + camY;
+
+  zoom *= scale;
+
+  camX = mx - (e.clientX - canvas.width/2)/zoom;
+  camY = my - (e.clientY - canvas.height/2)/zoom;
+});
+
+// 🖼️ click imagen
+canvas.addEventListener("click", e=>{
+  const mx = (e.clientX - canvas.width/2)/zoom + camX;
+  const my = (e.clientY - canvas.height/2)/zoom + camY;
+
+  items.forEach(item=>{
+    if(item.img){
+      if(Math.abs(mx-item.x)<30 && Math.abs(my-item.y)<30){
+        document.getElementById("img").src=item.img;
+        document.getElementById("text").innerText=item.frase;
+        document.getElementById("modal").style.display="flex";
+      }
+    }
+  });
+});
+
+window.addEventListener("click", e=>{
+  if(e.target.id==="modal"){
+    document.getElementById("modal").style.display="none";
+  }
+});
+
+draw();
+</script>
+</body>
+</html>
